@@ -7,5 +7,6 @@ func main() {
   m.Get("/", func() string {
     return "Hallo Welt!"
   })
+  m.RunOnAddr(":8080")
   m.Run()
 }
