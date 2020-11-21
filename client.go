@@ -1,3 +1,5 @@
+// client.go
+
 package main
 
 import (
@@ -6,8 +8,11 @@ import (
   "io/ioutil"
 )
 
+
 func main() {
-  var url string = "http://localhost:8080/"
+//  var url string = "http://localhost:8080/helloworld"
+  var url string = "http://localhost:8080/helloworld?name=AlfredENeumann"
+
   fmt.Println(url)
 
   resp, err := http.Get(url)
