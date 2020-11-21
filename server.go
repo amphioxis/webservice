@@ -5,6 +5,7 @@ import (
     "net/http/httputil"
     "fmt"
     "regexp"
+    "strings"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -27,19 +28,31 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 
 }
 
-func editRequest(toEdit string, u Url) (string) {
+func editRequest(toEdit string, u Url) (Url) {
 
     fmt.Println(toEdit)
 
     re := regexp.MustCompile(`/.* `)
     fmt.Printf("%q\n", re.FindString(toEdit))
     toEdit = re.FindString(toEdit)
-    fmt.Print(toEdit) // /helloworld?name=AlfredENeumann 
+    fmt.Println(toEdit) // /helloworld?name=AlfredENeumann
 
     re = regexp.MustCompile(`/.[^\?]*`)
     u.path = re.FindString(toEdit)
-    fmt.Print(u.path)
-		return toEdit
+    fmt.Println(u.path) // /helloworld
+
+    re = regexp.MustCompile(`\?(.*?)\=`)
+    u.key = re.FindString(toEdit)
+    fmt.Println(u.key) // ?name=
+    var toCut string = u.path + u.key
+    fmt.Println(toCut)
+    u.value = strings.TrimPrefix(toEdit, toCut)
+    fmt.Println(u.value) // AlfredENeumann
+    u.key = strings.TrimPrefix(u.key, "?")
+    u.key = strings.TrimSuffix(u.key, "=")
+    fmt.Println(u.key) // name
+
+		return u
 }
 
 type Url struct {
