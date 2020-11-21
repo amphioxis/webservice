@@ -55,6 +55,29 @@ func editRequest(toEdit string, u Url) (Url) {
 		return u
 }
 
+func camelCaseToSpace(u Url) (string) {
+
+  var a string
+  var b string = u.value
+  var responseValue string
+
+  for b != "" {
+    re := regexp.MustCompile(`^.[^A-Z]*`)
+    a = re.FindString(b)
+    fmt.Println(a)
+
+    if a != "" {
+      b = strings.TrimPrefix(b, a)
+      fmt.Println("b: ", b)
+      responseValue += a + " "
+    } else {
+      responseValue += b
+    }
+  }
+
+  return responseValue
+}
+
 type Url struct {
   path, key, value string
 }
@@ -62,12 +85,14 @@ type Url struct {
 func main() {
 
     var toEdit string
+    var responseValue string
 
     u := Url{"", "", ""}
 
     http.HandleFunc("/helloworld", func(response http.ResponseWriter, request *http.Request) {
         toEdit = queryOutput(toEdit, response, request)
-        editRequest(toEdit, u)
+        u = editRequest(toEdit, u)
+        responseValue = camelCaseToSpace(u)
     })
 
     http.ListenAndServe(":8080", nil)
