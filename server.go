@@ -7,7 +7,7 @@ import (
     "regexp"
 )
 
-func queryOutput(response http.ResponseWriter, request *http.Request) {
+func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
 
 //  Save a copy of this request for editing.
     requestDump, err := httputil.DumpRequest(request, true)
@@ -17,7 +17,18 @@ func queryOutput(response http.ResponseWriter, request *http.Request) {
     }
     fmt.Println(string(requestDump))
 
-    var toEdit string = string(requestDump)
+    toEdit = string(requestDump)
+    fmt.Println(toEdit)
+    return toEdit
+
+//   fmt.Println("response: ")
+//   fmt.Println(response)
+
+
+}
+
+func editRequest(toEdit string) (string) {
+
     fmt.Println(toEdit)
 
     re := regexp.MustCompile(`/.* `)
@@ -25,17 +36,17 @@ func queryOutput(response http.ResponseWriter, request *http.Request) {
     toEdit = re.FindString(toEdit)
     fmt.Print(toEdit) // /helloworld?name=AlfredENeumann 
 
-
-
-//    fmt.Println("response: ")
-//   fmt.Println(response)
-
-
+		return toEdit
 }
 
+
 func main() {
+
+    var toEdit string
+
     http.HandleFunc("/helloworld", func(response http.ResponseWriter, request *http.Request) {
-        queryOutput(response, request)
+        toEdit = queryOutput(toEdit, response, request)
     })
+
     http.ListenAndServe(":8080", nil)
 }
