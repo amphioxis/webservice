@@ -2,14 +2,35 @@ package main
 
 import (
     "net/http"
+    "net/http/httputil"
     "fmt"
+    "regexp"
 )
 
 func queryOutput(response http.ResponseWriter, request *http.Request) {
-    fmt.Print("request: ")
-    fmt.Println(request)
-    fmt.Println("response: ")
-    fmt.Println(response)
+
+//  Save a copy of this request for editing.
+    requestDump, err := httputil.DumpRequest(request, true)
+
+    if err != nil {
+      fmt.Println(err)
+    }
+    fmt.Println(string(requestDump))
+
+    var toEdit string = string(requestDump)
+    fmt.Println(toEdit)
+
+    re := regexp.MustCompile(`/.* `)
+    fmt.Printf("%q\n", re.FindString(toEdit))
+    toEdit = re.FindString(toEdit)
+    fmt.Print(toEdit) // /helloworld?name=AlfredENeumann 
+
+
+
+//    fmt.Println("response: ")
+//   fmt.Println(response)
+
+
 }
 
 func main() {
@@ -18,9 +39,3 @@ func main() {
     })
     http.ListenAndServe(":8080", nil)
 }
-
-
-
-
-
-// &{GET /helloworld HTTP/1.1 1 1 map[Accept-Encoding:[gzip] User-Agent:[Go-http-client/1.1]] {} <nil> 0 [] false localhost:8080 map[] map[] <nil> map[] [::1]:35960 /helloworld <nil> <nil> <nil> 0xc0001180c0}
