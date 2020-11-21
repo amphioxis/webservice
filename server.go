@@ -27,7 +27,7 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 
 }
 
-func editRequest(toEdit string) (string) {
+func editRequest(toEdit string, u Url) (string) {
 
     fmt.Println(toEdit)
 
@@ -36,16 +36,25 @@ func editRequest(toEdit string) (string) {
     toEdit = re.FindString(toEdit)
     fmt.Print(toEdit) // /helloworld?name=AlfredENeumann 
 
+    re = regexp.MustCompile(`/.[^\?]*`)
+    u.path = re.FindString(toEdit)
+    fmt.Print(u.path)
 		return toEdit
 }
 
+type Url struct {
+  path, key, value string
+}
 
 func main() {
 
     var toEdit string
 
+    u := Url{"", "", ""}
+
     http.HandleFunc("/helloworld", func(response http.ResponseWriter, request *http.Request) {
         toEdit = queryOutput(toEdit, response, request)
+        editRequest(toEdit, u)
     })
 
     http.ListenAndServe(":8080", nil)
