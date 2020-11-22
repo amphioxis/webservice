@@ -16,10 +16,10 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
     if err != nil {
       fmt.Println(err)
     }
-    fmt.Println(string(requestDump))
+//    fmt.Println(string(requestDump))
 
     toEdit = string(requestDump)
-    fmt.Println(toEdit)
+//    fmt.Println(toEdit)
     return toEdit
 
 //   fmt.Println("response: ")
@@ -30,27 +30,27 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 
 func editRequest(toEdit string, u Url) (Url) {
 
-    fmt.Println(toEdit)
+//    fmt.Println(toEdit)
 
     re := regexp.MustCompile(`/.* `)
-    fmt.Printf("%q\n", re.FindString(toEdit))
+//    fmt.Printf("%q\n", re.FindString(toEdit))
     toEdit = re.FindString(toEdit)
-    fmt.Println(toEdit) // /helloworld?name=AlfredENeumann
+//    fmt.Println(toEdit)
 
     re = regexp.MustCompile(`/.[^\?]*`)
     u.path = re.FindString(toEdit)
-    fmt.Println(u.path) // /helloworld
+//    fmt.Println(u.path)
 
     re = regexp.MustCompile(`\?(.*?)\=`)
     u.key = re.FindString(toEdit)
-    fmt.Println(u.key) // ?name=
+//    fmt.Println(u.key)
     var toCut string = u.path + u.key
-    fmt.Println(toCut)
+//    fmt.Println(toCut)
     u.value = strings.TrimPrefix(toEdit, toCut)
-    fmt.Println(u.value) // AlfredENeumann
+//    fmt.Println(u.value)
     u.key = strings.TrimPrefix(u.key, "?")
     u.key = strings.TrimSuffix(u.key, "=")
-    fmt.Println(u.key) // name
+//    fmt.Println(u.key)
 
 		return u
 }
@@ -64,17 +64,18 @@ func camelCaseToSpace(u Url) (string) {
   for b != "" {
     re := regexp.MustCompile(`^.[^A-Z]*`)
     a = re.FindString(b)
-    fmt.Println(a)
+//    fmt.Println(a)
 
     if a != "" {
       b = strings.TrimPrefix(b, a)
-      fmt.Println("b: ", b)
+//      fmt.Println("b: ", b)
       responseValue += a + " "
     } else {
       responseValue += b
     }
   }
 
+  fmt.Println(responseValue)
   return responseValue
 }
 
