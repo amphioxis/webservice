@@ -6,6 +6,7 @@ import (
     "fmt"
     "regexp"
     "strings"
+    "io"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -25,33 +26,37 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 //   fmt.Println("response: ")
 //   fmt.Println(response)
 
-
 }
 
 func editRequest(toEdit string, u Url) (Url) {
 
-//    fmt.Println(toEdit)
+   fmt.Println("enter editRequest")
+   fmt.Println("toEdit: ")
+   fmt.Println(toEdit)
 
-    re := regexp.MustCompile(`/.* `)
+    re := regexp.MustCompile(`/.* `) // picks the path with query of GET /path?key=value HTTP/1.1
 //    fmt.Printf("%q\n", re.FindString(toEdit))
     toEdit = re.FindString(toEdit)
-//    fmt.Println(toEdit)
-
-    re = regexp.MustCompile(`/.[^\?]*`)
+   fmt.Println("path with query:", toEdit)
+    re = regexp.MustCompile(`/.[^\?]*`) // picks the path of /path?key=value
     u.path = re.FindString(toEdit)
-//    fmt.Println(u.path)
+   fmt.Println("path:", u.path + "!")
+    u.path = strings.Replace(u.path, " ", "", -1)
+//    fmt.Println("path:", u.path + "!")
+   fmt.Println("path:", u.path + "!")
 
-    re = regexp.MustCompile(`\?(.*?)\=`)
+    re = regexp.MustCompile(`\?(.*?)\=`) //picks ?key=
     u.key = re.FindString(toEdit)
-//    fmt.Println(u.key)
-    var toCut string = u.path + u.key
-//    fmt.Println(toCut)
-    u.value = strings.TrimPrefix(toEdit, toCut)
-//    fmt.Println(u.value)
+   fmt.Println("key:", u.key) // ?name=
+    var toCut string = u.path + u.key //
+   fmt.Println("toCut:", toCut) // /path?key=
+    u.value = strings.TrimPrefix(toEdit, toCut) // picks value of /path?key=value
+   fmt.Println("value:", u.value)
     u.key = strings.TrimPrefix(u.key, "?")
     u.key = strings.TrimSuffix(u.key, "=")
-//    fmt.Println(u.key)
+//    fmt.Println("u.key:", u.key)
 
+   fmt.Println("exit editRequest")
 		return u
 }
 
@@ -79,6 +84,26 @@ func camelCaseToSpace(u Url) (string) {
   return responseValue
 }
 
+func sendResponse(u Url, responseValue string, response http.ResponseWriter, request *http.Request) {
+  fmt.Println("enter sendResponse")
+//  fmt.Println("u.path1:", u.path)
+  if u.path == "/helloworld" {
+//    fmt.Println("u.path2:", u.path)
+    if u.key == "" {
+//    fmt.Println("u.key:", u.key)
+      io.WriteString(response, "Hello Stranger")
+    } else if u.key == "name" {
+//    fmt.Println("u.key:", u.key)
+      io.WriteString(response, responseValue)
+    } else {
+      io.WriteString(response, "unkown key")
+    }
+  } else {
+		io.WriteString(response, "unkown path")
+	}
+  fmt.Println("exit sendResponse")
+}
+
 type Url struct {
   path, key, value string
 }
@@ -90,10 +115,11 @@ func main() {
 
     u := Url{"", "", ""}
 
-    http.HandleFunc("/helloworld", func(response http.ResponseWriter, request *http.Request) {
+    http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
         toEdit = queryOutput(toEdit, response, request)
         u = editRequest(toEdit, u)
         responseValue = camelCaseToSpace(u)
+        sendResponse(u, responseValue, response, request)
     })
 
     http.ListenAndServe(":8080", nil)
