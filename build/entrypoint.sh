@@ -1,5 +1,4 @@
 #!/bin/bash
 
-export PATH=$PATH:/usr/local/go/bin
-
+go run webservice.go
 tail -f /dev/null

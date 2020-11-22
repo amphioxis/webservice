@@ -7,6 +7,7 @@ RUN apk add -u go
 
 COPY ./vimrc /.vimrc
 COPY ./entrypoint.sh /entrypoint.sh
+COPY ./webservice.go /webservice.go
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
-#ENTRYPOINT ["/entrypoint.sh"]
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["/entrypoint.sh"]
