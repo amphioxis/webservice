@@ -43,16 +43,16 @@ func editRequest(toEdit string, u Url) (Url) {
 //   fmt.Println("path:", u.path + "!")
     u.path = strings.Replace(u.path, " ", "", -1)
 //    fmt.Println("path:", u.path + "!")
-   fmt.Println("path:", u.path + "!")
+//   fmt.Println("path:", u.path + "!")
 
 //    re = regexp.MustCompile(`\?(.*?)\=`) //picks ?key=
     re = regexp.MustCompile(`\?.*`) //picks ?key=value
     u.key = re.FindString(toEdit)
-   fmt.Println("key:", u.key) // ?name=value
+//   fmt.Println("key:", u.key) // ?name=value
 
     re = regexp.MustCompile(`\=.*`) //picks ?key=value
     u.value = re.FindString(u.key)
-   fmt.Println("value1:", u.value) // =value
+//   fmt.Println("value1:", u.value) // =value
 
 
 //    var toCut string = u.path + u.key //
@@ -63,10 +63,10 @@ func editRequest(toEdit string, u Url) (Url) {
     u.key = strings.Replace(u.key, " ", "", -1)
     u.value = strings.TrimPrefix(u.value, "=")
     u.value = strings.Replace(u.value, " ", "", -1)
-   fmt.Println("key:", u.key)
-   fmt.Println("value:", u.value)
+//   fmt.Println("key:", u.key)
+//   fmt.Println("value:", u.value)
 
-   fmt.Println("exit editRequest")
+//   fmt.Println("exit editRequest")
 		return u
 }
 
@@ -98,7 +98,7 @@ func camelCaseToSpace(u Url) (string) {
 }
 
 func sendResponse(u Url, responseValue string, response http.ResponseWriter, request *http.Request) {
-  fmt.Println("enter sendResponse")
+//  fmt.Println("enter sendResponse")
 //  fmt.Println("u.path1:", u.path)
   if u.path == "/helloworld" {
 //    fmt.Println("u.path2:", u.path)
@@ -118,7 +118,7 @@ func sendResponse(u Url, responseValue string, response http.ResponseWriter, req
   } else {
 		io.WriteString(response, "unkown path")
 	}
-  fmt.Println("exit sendResponse")
+//  fmt.Println("exit sendResponse")
 }
 
 type Url struct {
