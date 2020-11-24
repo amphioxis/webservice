@@ -7,6 +7,7 @@ import (
     "regexp"
     "strings"
     "io"
+    "time"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -139,5 +140,14 @@ func main() {
         sendResponse(u, responseValue, response, request)
     })
 
-    http.ListenAndServe(":8080", nil)
+    s := &http.Server{
+      Addr:           ":8080",
+//      Handler:        myHandler,
+      ReadTimeout:    30 * time.Second,
+      WriteTimeout:   30 * time.Second,
+      MaxHeaderBytes: 1 << 20,
+    }
+//    log.Fatal(s.ListenAndServe())
+    s.ListenAndServe()
+//    http.ListenAndServe(":8080", nil)
 }
