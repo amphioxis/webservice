@@ -8,6 +8,7 @@ import (
     "strings"
     "io"
     "time"
+    "os"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -98,51 +99,88 @@ func camelCaseToSpace(u Url) (string) {
   return responseValue
 }
 
-func sendResponse(u Url, responseValue string, response http.ResponseWriter, request *http.Request) {
+func sendResponse(u Url, responseValue string, response http.ResponseWriter, request *http.Request) (string) {
 //  fmt.Println("enter sendResponse")
 //  fmt.Println("u.path1:", u.path)
   if u.path == "/helloworld" {
 //    fmt.Println("u.path2:", u.path)
     if u.key == "" {
 //    fmt.Println("u.key:", u.key)
+      response.WriteHeader(200)
       io.WriteString(response, "\"Hello Stranger\"")
+      return "200"
     } else if u.key == "name" {
 //    fmt.Println("u.key:", u.key)
       if u.value != ""{
+        response.WriteHeader(200)
         io.WriteString(response, responseValue)
+        return "200"
       } else {
+        response.WriteHeader(400)
         io.WriteString(response, "no value")
+        return "400"
       }
     } else {
+      response.WriteHeader(400)
       io.WriteString(response, "unkown key")
+      return "400"
     }
   } else {
+    response.WriteHeader(400)
 		io.WriteString(response, "unkown path")
+    return "400"
 	}
+
+  response.WriteHeader(500)
+  return "500"
 //  fmt.Println("exit sendResponse")
+}
+
+func writeLog(l Log) (int) {
+  fmt.Println("Request number", l.numberOfRequests, ": \n")
+  fmt.Println("Time of request:", l.date)
+  fmt.Println("HTTP-Status:", l.status)
+  fmt.Println("Request:")
+  fmt.Println(l.request)
+  return l.numberOfRequests
 }
 
 type Url struct {
   path, key, value string
 }
 
+type Log struct {
+  date, status, request string
+  numberOfRequests int
+}
+
 func main() {
 
     var toEdit string
     var responseValue string
+    var i int = 0
 
     u := Url{"", "", ""}
+    l := Log{"", "", "", 0}
 
     http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
+        i++
+        if i == 10 {
+          fmt.Println("Reached", i, "requests, shutdown")
+          os.Exit(0)
+        }
+        l.numberOfRequests = i
+        l.date = time.Now().String()
         toEdit = queryOutput(toEdit, response, request)
+        l.request = toEdit
         u = editRequest(toEdit, u)
         responseValue = camelCaseToSpace(u)
-        sendResponse(u, responseValue, response, request)
+        l.status = sendResponse(u, responseValue, response, request)
+        writeLog(l)
     })
 
     s := &http.Server{
       Addr:           ":8080",
-//      Handler:        myHandler,
       ReadTimeout:    30 * time.Second,
       WriteTimeout:   30 * time.Second,
       MaxHeaderBytes: 1 << 20,
