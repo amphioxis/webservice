@@ -9,6 +9,7 @@ import (
     "io"
     "time"
     "os"
+    "flag"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -27,7 +28,6 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 
 //   fmt.Println("response: ")
 //   fmt.Println(response)
-
 }
 
 func editRequest(toEdit string, u Url) (Url) {
@@ -99,10 +99,11 @@ func camelCaseToSpace(u Url) (string) {
   return responseValue
 }
 
-func sendResponse(u Url, responseValue string, response http.ResponseWriter, request *http.Request) (string) {
+func sendResponse(u Url, path_1 string, responseValue string, response http.ResponseWriter, request *http.Request) (string) {
+
 //  fmt.Println("enter sendResponse")
 //  fmt.Println("u.path1:", u.path)
-  if u.path == "/helloworld" {
+  if u.path == "/" + path_1 {
 //    fmt.Println("u.path2:", u.path)
     if u.key == "" {
 //    fmt.Println("u.key:", u.key)
@@ -137,6 +138,7 @@ func sendResponse(u Url, responseValue string, response http.ResponseWriter, req
 }
 
 func writeLog(l Log) (int) {
+
   fmt.Println("Request number", l.numberOfRequests, ": \n")
   fmt.Println("Time of request:", l.date)
   fmt.Println("HTTP-Status:", l.status)
@@ -156,6 +158,12 @@ type Log struct {
 
 func main() {
 
+    path_1 := flag.String("path_1", "helloworld", "path to take output from")
+//    path_2 := flag.String("path_2", "versionz", "path to take JSON file from")
+    port := flag.String("port", "8080", "port on which the service is listening")
+    maxReq := flag.Int("maxReq", 10, "maximum of allowed requests, if reached")
+    flag.Parse()
+
     var toEdit string
     var responseValue string
     var i int = 0
@@ -164,23 +172,25 @@ func main() {
     l := Log{"", "", "", 0}
 
     http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
+
         i++
-        if i == 10 {
-          fmt.Println("Reached", i, "requests, shutdown")
-          os.Exit(0)
-        }
         l.numberOfRequests = i
         l.date = time.Now().String()
         toEdit = queryOutput(toEdit, response, request)
         l.request = toEdit
         u = editRequest(toEdit, u)
         responseValue = camelCaseToSpace(u)
-        l.status = sendResponse(u, responseValue, response, request)
+        l.status = sendResponse(u, *path_1, responseValue, response, request)
         writeLog(l)
+
+        if i == *maxReq {
+          fmt.Println("Reached", i, "requests, shutdown")
+          os.Exit(0)
+        }
     })
 
     s := &http.Server{
-      Addr:           ":8080",
+      Addr:           ":" + *port,
       ReadTimeout:    30 * time.Second,
       WriteTimeout:   30 * time.Second,
       MaxHeaderBytes: 1 << 20,
