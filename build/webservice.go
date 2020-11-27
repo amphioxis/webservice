@@ -99,11 +99,25 @@ func camelCaseToSpace(u Url) (string) {
   return responseValue
 }
 
-func sendResponse(u Url, path_1 string, responseValue string, response http.ResponseWriter, request *http.Request) (string) {
+func getProjectname(g Git) (Git) {
+
+//  fmt.Println("enter getProjectname")
+//  fmt.Println(g.projectname)
+  re := regexp.MustCompile(`.*/`)
+  var toCut string = re.FindString(g.projectname)
+  g.projectname = strings.TrimPrefix(g.projectname, toCut)
+//  fmt.Println(g.projectname)
+  g.projectname = strings.TrimSuffix(g.projectname, ".git")
+//  fmt.Println(g.projectname)
+
+  return g
+}
+
+func sendResponse(u Url, p Path, g Git, responseValue string, response http.ResponseWriter, request *http.Request) (string) {
 
 //  fmt.Println("enter sendResponse")
 //  fmt.Println("u.path1:", u.path)
-  if u.path == "/" + path_1 {
+  if u.path == "/" + p.path_1 {
 //    fmt.Println("u.path2:", u.path)
     if u.key == "" {
 //    fmt.Println("u.key:", u.key)
@@ -126,6 +140,13 @@ func sendResponse(u Url, path_1 string, responseValue string, response http.Resp
       io.WriteString(response, "unkown key")
       return "400"
     }
+  } else if u.path == "/" + p.path_2 {
+    response.WriteHeader(200)
+//    createJSON( )
+    g = getProjectname(g)
+//    fmt.Println("projectname:", g.projectname)
+//    fmt.Println("hash:", g.hash)
+    return "200"
   } else {
     response.WriteHeader(400)
 		io.WriteString(response, "unkown path")
@@ -147,6 +168,14 @@ func writeLog(l Log) (int) {
   return l.numberOfRequests
 }
 
+type Git struct {
+  hash, projectname string
+}
+
+type Path struct {
+  path_1, path_2 string
+}
+
 type Url struct {
   path, key, value string
 }
@@ -158,18 +187,28 @@ type Log struct {
 
 func main() {
 
+    u := Url{"", "", ""}
+    l := Log{"", "", "", 0}
+    g := Git{"", ""}
+    p := Path{"", ""}
+
     path_1 := flag.String("path_1", "helloworld", "path to take output from")
-//    path_2 := flag.String("path_2", "versionz", "path to take JSON file from")
+    path_2 := flag.String("path_2", "versionz", "path to take JSON file from")
     port := flag.String("port", "8080", "port on which the service is listening")
-    maxReq := flag.Int("maxReq", 10, "maximum of allowed requests, if reached")
+    maxReq := flag.Int("maxReq", 10, "maximum of allowed requests, if reached service shuts down")
+    hash := flag.String("hash", "", "hash of the project")
+    projectURL := flag.String("projectURL", "", "name of the project")
     flag.Parse()
+
+    g.hash = *hash
+    g.projectname = *projectURL
+    p.path_1 = *path_1
+    p.path_2 = *path_2
 
     var toEdit string
     var responseValue string
     var i int = 0
 
-    u := Url{"", "", ""}
-    l := Log{"", "", "", 0}
 
     http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 
@@ -180,7 +219,7 @@ func main() {
         l.request = toEdit
         u = editRequest(toEdit, u)
         responseValue = camelCaseToSpace(u)
-        l.status = sendResponse(u, *path_1, responseValue, response, request)
+        l.status = sendResponse(u, p, g, responseValue, response, request)
         writeLog(l)
 
         if i == *maxReq {

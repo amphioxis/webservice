@@ -6,6 +6,6 @@ services:
     image: "webservice:1.0"
     env_file: ./build/env_file
     volumes:
-      - ./build/home:/home
+      - .git/:/.git
     ports:
       - "${PORT}:8080"
