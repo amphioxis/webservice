@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 HASH=$(git log --pretty=format:'%H' -n 1)
 PROJECTURL=$(git remote get-url origin)
