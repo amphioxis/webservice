@@ -10,6 +10,7 @@ import (
     "time"
     "os"
     "flag"
+    "encoding/json"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -104,10 +105,10 @@ func getProjectname(g Git) (Git) {
 //  fmt.Println("enter getProjectname")
 //  fmt.Println(g.projectname)
   re := regexp.MustCompile(`.*/`)
-  var toCut string = re.FindString(g.projectname)
-  g.projectname = strings.TrimPrefix(g.projectname, toCut)
+  var toCut string = re.FindString(g.Projectname)
+  g.Projectname = strings.TrimPrefix(g.Projectname, toCut)
 //  fmt.Println(g.projectname)
-  g.projectname = strings.TrimSuffix(g.projectname, ".git")
+  g.Projectname = strings.TrimSuffix(g.Projectname, ".git")
 //  fmt.Println(g.projectname)
 
   return g
@@ -141,9 +142,12 @@ func sendResponse(u Url, p Path, g Git, responseValue string, response http.Resp
       return "400"
     }
   } else if u.path == "/" + p.path_2 {
-    response.WriteHeader(200)
-//    createJSON( )
     g = getProjectname(g)
+    j, _ := json.Marshal(g)
+//    fmt.Println(string(j))
+//    response.Header().Set("Webserver", "new Content")
+    response.WriteHeader(200)
+    io.WriteString(response, string(j))
 //    fmt.Println("projectname:", g.projectname)
 //    fmt.Println("hash:", g.hash)
     return "200"
@@ -169,7 +173,7 @@ func writeLog(l Log) (int) {
 }
 
 type Git struct {
-  hash, projectname string
+  Hash, Projectname string
 }
 
 type Path struct {
@@ -200,8 +204,8 @@ func main() {
     projectURL := flag.String("projectURL", "", "name of the project")
     flag.Parse()
 
-    g.hash = *hash
-    g.projectname = *projectURL
+    g.Hash = *hash
+    g.Projectname = *projectURL
     p.path_1 = *path_1
     p.path_2 = *path_2
 
