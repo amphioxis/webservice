@@ -1,16 +1,16 @@
 package main
 
 import (
-    "net/http"
-    "net/http/httputil"
-    "fmt"
-    "regexp"
-    "strings"
-    "io"
-    "time"
-    "os"
-    "flag"
-    "encoding/json"
+  "net/http"
+  "net/http/httputil"
+  "fmt"
+  "regexp"
+  "strings"
+  "io"
+  "time"
+  "os"
+  "flag"
+  "encoding/json"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -37,40 +37,42 @@ func editRequest(toEdit string, u Url) (Url) {
 //   fmt.Println("toEdit: ")
 //   fmt.Println(toEdit)
 
-    re := regexp.MustCompile(`/.* `) // picks the path with query of GET /path?key=value HTTP/1.1
+  re := regexp.MustCompile(`/.* `) // picks the path with query of GET /path?key=value HTTP/1.1
 //    fmt.Printf("%q\n", re.FindString(toEdit))
-    toEdit = re.FindString(toEdit)
+  toEdit = re.FindString(toEdit)
 //   fmt.Println("path with query:", toEdit)
-    re = regexp.MustCompile(`/.[^\?]*`) // picks the path of /path?key=value
-    u.path = re.FindString(toEdit)
+  re = regexp.MustCompile(`/.[^\?]*`) // picks the path of /path?key=value
+  u.path = re.FindString(toEdit)
 //   fmt.Println("path:", u.path + "!")
-    u.path = strings.Replace(u.path, " ", "", -1)
+  u.path = strings.Replace(u.path, " ", "", -1)
 //    fmt.Println("path:", u.path + "!")
 //   fmt.Println("path:", u.path + "!")
 
 //    re = regexp.MustCompile(`\?(.*?)\=`) //picks ?key=
-    re = regexp.MustCompile(`\?.*`) //picks ?key=value
-    u.key = re.FindString(toEdit)
+  re = regexp.MustCompile(`\?.*`) //picks ?key=value
+  u.key = re.FindString(toEdit)
 //   fmt.Println("key:", u.key) // ?name=value
 
-    re = regexp.MustCompile(`\=.*`) //picks ?key=value
-    u.value = re.FindString(u.key)
+  re = regexp.MustCompile(`\=.*`) //picks ?key=value
+  u.value = re.FindString(u.key)
 //   fmt.Println("value1:", u.value) // =value
 
 
 //    var toCut string = u.path + u.key //
 //   fmt.Println("toCut:", toCut) // /path?key=
 //    u.value = strings.TrimPrefix(toEdit, toCut) // picks value of /path?key=value
-    u.key = strings.TrimSuffix(u.key, u.value) // ?name
-    u.key = strings.TrimPrefix(u.key, "?")
-    u.key = strings.Replace(u.key, " ", "", -1)
-    u.value = strings.TrimPrefix(u.value, "=")
-    u.value = strings.Replace(u.value, " ", "", -1)
+  u.key = strings.TrimSuffix(u.key, u.value) // ?name
+  u.key = strings.TrimPrefix(u.key, "?")
+  u.key = strings.Replace(u.key, " ", "", -1)
+  u.value = strings.TrimPrefix(u.value, "=")
+  u.value = strings.Replace(u.value, " ", "", -1)
+
+//   fmt.Println("path:", u.path)
 //   fmt.Println("key:", u.key)
 //   fmt.Println("value:", u.value)
 
 //   fmt.Println("exit editRequest")
-		return u
+  return u
 }
 
 func camelCaseToSpace(u Url) (string) {
@@ -164,7 +166,8 @@ func sendResponse(u Url, p Path, g Git, responseValue string, response http.Resp
 
 func writeLog(l Log) (int) {
 
-  fmt.Println("Request number", l.numberOfRequests, ": \n")
+  fmt.Println("Request number", l.numberOfRequests, ":")
+  fmt.Println("")
   fmt.Println("Time of request:", l.date)
   fmt.Println("HTTP-Status:", l.status)
   fmt.Println("Request:")
@@ -191,54 +194,54 @@ type Log struct {
 
 func main() {
 
-    u := Url{"", "", ""}
-    l := Log{"", "", "", 0}
-    g := Git{"", ""}
-    p := Path{"", ""}
+  u := Url{"", "", ""}
+  l := Log{"", "", "", 0}
+  g := Git{"", ""}
+  p := Path{"", ""}
 
-    path_1 := flag.String("path_1", "helloworld", "path to take output from")
-    path_2 := flag.String("path_2", "versionz", "path to take JSON file from")
-    port := flag.String("port", "8080", "port on which the service is listening")
-    maxReq := flag.Int("maxReq", 10, "maximum of allowed requests, if reached service shuts down")
-    hash := flag.String("hash", "", "hash of the project")
-    projectURL := flag.String("projectURL", "", "name of the project")
-    flag.Parse()
+  path_1 := flag.String("path_1", "helloworld", "path to take output from")
+  path_2 := flag.String("path_2", "versionz", "path to take JSON file from")
+  port := flag.String("port", "8080", "port on which the service is listening")
+  maxReq := flag.Int("maxReq", 10, "maximum of allowed requests, if reached service shuts down")
+  hash := flag.String("hash", "", "hash of the project")
+  projectURL := flag.String("projectURL", "", "name of the project")
+  flag.Parse()
 
-    g.Hash = *hash
-    g.Projectname = *projectURL
-    p.path_1 = *path_1
-    p.path_2 = *path_2
+  g.Hash = *hash
+  g.Projectname = *projectURL
+  p.path_1 = *path_1
+  p.path_2 = *path_2
 
-    var toEdit string
-    var responseValue string
-    var i int = 0
+  var toEdit string
+  var responseValue string
+  var i int = 0
 
 
-    http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
+  http.HandleFunc("/", func(response http.ResponseWriter, request *http.Request) {
 
-        i++
-        l.numberOfRequests = i
-        l.date = time.Now().String()
-        toEdit = queryOutput(toEdit, response, request)
-        l.request = toEdit
-        u = editRequest(toEdit, u)
-        responseValue = camelCaseToSpace(u)
-        l.status = sendResponse(u, p, g, responseValue, response, request)
-        writeLog(l)
+    i++
+    l.numberOfRequests = i
+    l.date = time.Now().String()
+    toEdit = queryOutput(toEdit, response, request)
+    l.request = toEdit
+    u = editRequest(toEdit, u)
+    responseValue = camelCaseToSpace(u)
+    l.status = sendResponse(u, p, g, responseValue, response, request)
+    writeLog(l)
 
-        if i == *maxReq {
-          fmt.Println("Reached", i, "requests, shutdown")
-          os.Exit(0)
-        }
-    })
-
-    s := &http.Server{
-      Addr:           ":" + *port,
-      ReadTimeout:    30 * time.Second,
-      WriteTimeout:   30 * time.Second,
-      MaxHeaderBytes: 1 << 20,
+    if i == *maxReq {
+      fmt.Println("Reached", i, "requests, shutdown")
+      os.Exit(0)
     }
+  })
+
+  s := &http.Server{
+    Addr:           ":" + *port,
+    ReadTimeout:    30 * time.Second,
+    WriteTimeout:   30 * time.Second,
+    MaxHeaderBytes: 1 << 20,
+  }
 //    log.Fatal(s.ListenAndServe())
-    s.ListenAndServe()
+  s.ListenAndServe()
 //    http.ListenAndServe(":8080", nil)
 }
