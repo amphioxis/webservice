@@ -4,8 +4,6 @@ import (
   "net/http"
   "net/http/httputil"
   "fmt"
-  "regexp"
-  "strings"
   "io"
   "time"
   "os"
@@ -29,20 +27,6 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 
 //   fmt.Println("response: ")
 //   fmt.Println(response)
-}
-
-func getProjectname(g Git) (Git) {
-
-//  fmt.Println("enter getProjectname")
-//  fmt.Println(g.projectname)
-  re := regexp.MustCompile(`.*/`)
-  var toCut string = re.FindString(g.Projectname)
-  g.Projectname = strings.TrimPrefix(g.Projectname, toCut)
-//  fmt.Println(g.projectname)
-  g.Projectname = strings.TrimSuffix(g.Projectname, ".git")
-//  fmt.Println(g.projectname)
-
-  return g
 }
 
 func sendResponse(u Url, p Path, g Git, responseValue string, response http.ResponseWriter, request *http.Request) (string) {
@@ -73,6 +57,11 @@ func sendResponse(u Url, p Path, g Git, responseValue string, response http.Resp
       return "400"
     }
   } else if u.path == "/" + p.path_2 {
+    if g.Projectname == "" {
+      response.WriteHeader(400)
+      io.WriteString(response, "no git repository found")
+      return "400"
+    }
     g = getProjectname(g)
     j, _ := json.Marshal(g)
 //    fmt.Println(string(j))
