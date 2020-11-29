@@ -1,3 +1,7 @@
+/* This function takes the Url struct and separates CamelCase strings e.g. CamelCase to Camel Case.
+ * Numbers are handled like lower case letters.
+ */
+
 package main
 
 import (
@@ -14,11 +18,9 @@ func camelCaseToSpace(u Url) (string) {
   for b != "" {
     re := regexp.MustCompile(`^.[^A-Z]*`)
     a = re.FindString(b)
-//    fmt.Println(a)
 
     if a != "" {
       b = strings.TrimPrefix(b, a)
-//      fmt.Println("b: ", b)
       responseValue += a + " "
     } else {
       responseValue += b
