@@ -31,33 +31,6 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 //   fmt.Println(response)
 }
 
-func camelCaseToSpace(u Url) (string) {
-
-  var a string
-  var b string = u.value
-  var responseValue string
-
-  for b != "" {
-    re := regexp.MustCompile(`^.[^A-Z]*`)
-    a = re.FindString(b)
-//    fmt.Println(a)
-
-    if a != "" {
-      b = strings.TrimPrefix(b, a)
-//      fmt.Println("b: ", b)
-      responseValue += a + " "
-    } else {
-      responseValue += b
-    }
-  }
-
-  responseValue = strings.TrimSuffix(responseValue, " ")
-  responseValue = "\"" + responseValue + "\""
-
-//  fmt.Println(responseValue)
-  return responseValue
-}
-
 func getProjectname(g Git) (Git) {
 
 //  fmt.Println("enter getProjectname")
@@ -181,7 +154,11 @@ func main() {
     toEdit = queryOutput(toEdit, response, request)
     l.request = toEdit
     u = editRequest(toEdit, u)
-    responseValue = camelCaseToSpace(u)
+
+		if u.value != "" {
+      responseValue = camelCaseToSpace(u)
+		}
+
     l.status = sendResponse(u, p, g, responseValue, response, request)
     writeLog(l)
 
