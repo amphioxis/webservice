@@ -18,8 +18,16 @@ func editRequest(toEdit string, u Url) (Url) {
   u.path = re.FindString(toEdit)
   u.path = strings.Replace(u.path, " ", "", -1)
 
+  if u.path== "/" {
+    return u
+  }
+
   re = regexp.MustCompile(`\?.*`) //picks the query '?key=value' of '/path?key=value'
   u.key = re.FindString(toEdit)
+
+  if u.key == "" {
+    return u
+  }
 
   re = regexp.MustCompile(`\=.*`) //picks the value '=value' of '/key=value'
   u.value = re.FindString(u.key)
