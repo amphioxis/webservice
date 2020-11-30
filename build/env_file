@@ -1,5 +1,5 @@
 # change the command-flags for the webservice in this file
 PATH_1=helloworld
 PATH_2=versionz
-PORT=8080 # unnecessary, because there is only one service inside the container, hence the portnumber doesnt matter
-MAXREQ=5
+PORT=8080 # unnecessary, because there is only one service inside the container, hence the portnumber doesnt matter --> change the container Port in .env file!
+MAXREQ=5 # max number of requests the service will take before it shuts down

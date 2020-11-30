@@ -1,10 +1,4 @@
 start:
-#	HASH=$(echo test)
-#	HASH=$(git log --pretty=format:'%H' -n 1)
-#	git log --pretty=format:'%H' -n 1
-#	@echo $(HASH)
 	@echo "starting go"
-#	@go run ../build/webservice.go -hash=5005 -projectURL=https://github.com/amphioxis/webservice.git #-port=${PORT} -path_1=${PATH_1} -maxReq=${MAXREQ}
-#	@go run ../build/webservice.go -port=${PORT} -path_1=${PATH_1} -maxReq=${MAXREQ}
-	@go run ../build/goFiles/ .
+	@go run ./build/goFiles/ -port=8090 -path_1=helloworld -path_2=versionz -maxReq=5 -hash=8088088aa1098050ee7761d5077d027c174a6f4a -projectURL=https://github.com/amphioxis/webservice.git .
 

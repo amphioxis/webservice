@@ -5,7 +5,6 @@ RUN apk add -u go
 RUN apk add -u git
 
 COPY ./entrypoint.sh /entrypoint.sh
-#COPY ./webservice.go /webservice.go
 COPY ./goFiles /goFiles
 
 ENTRYPOINT ["/entrypoint.sh"]
