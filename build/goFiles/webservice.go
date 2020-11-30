@@ -4,11 +4,11 @@ import (
   "net/http"
   "net/http/httputil"
   "fmt"
-  "io"
+//  "io"
   "time"
   "os"
   "flag"
-  "encoding/json"
+//  "encoding/json"
 )
 
 func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
@@ -27,59 +27,6 @@ func queryOutput(toEdit string, response http.ResponseWriter, request *http.Requ
 
 //   fmt.Println("response: ")
 //   fmt.Println(response)
-}
-
-func sendResponse(u Url, p Path, g Git, responseValue string, response http.ResponseWriter, request *http.Request) (string) {
-
-//  fmt.Println("enter sendResponse")
-//  fmt.Println("u.path1:", u.path)
-  if u.path == "/" + p.path_1 {
-//    fmt.Println("u.path2:", u.path)
-    if u.key == "" {
-//    fmt.Println("u.key:", u.key)
-      response.WriteHeader(200)
-      io.WriteString(response, "\"Hello Stranger\"")
-      return "200"
-    } else if u.key == "name" {
-//    fmt.Println("u.key:", u.key)
-      if u.value != ""{
-        response.WriteHeader(200)
-        io.WriteString(response, responseValue)
-        return "200"
-      } else {
-        response.WriteHeader(400)
-        io.WriteString(response, "no value")
-        return "400"
-      }
-    } else {
-      response.WriteHeader(400)
-      io.WriteString(response, "unkown key")
-      return "400"
-    }
-  } else if u.path == "/" + p.path_2 {
-    if g.Projectname == "" {
-      response.WriteHeader(400)
-      io.WriteString(response, "no git repository found")
-      return "400"
-    }
-    g = getProjectname(g)
-    j, _ := json.Marshal(g)
-//    fmt.Println(string(j))
-//    response.Header().Set("Webserver", "new Content")
-    response.WriteHeader(200)
-    io.WriteString(response, string(j))
-//    fmt.Println("projectname:", g.projectname)
-//    fmt.Println("hash:", g.hash)
-    return "200"
-  } else {
-    response.WriteHeader(400)
-		io.WriteString(response, "unkown path")
-    return "400"
-	}
-
-  response.WriteHeader(500)
-  return "500"
-//  fmt.Println("exit sendResponse")
 }
 
 func writeLog(l Log) (int) {
@@ -148,7 +95,7 @@ func main() {
       responseValue = camelCaseToSpace(u)
 		}
 
-    l.status = sendResponse(u, p, g, responseValue, response, request)
+    l.status = sendResponse(u, p, g, responseValue, response) //, request)
     writeLog(l)
 
     if i == *maxReq {
