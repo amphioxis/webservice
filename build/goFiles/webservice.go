@@ -2,32 +2,11 @@ package main
 
 import (
   "net/http"
-  "net/http/httputil"
   "fmt"
-//  "io"
   "time"
   "os"
   "flag"
-//  "encoding/json"
 )
-
-func queryOutput(toEdit string, response http.ResponseWriter, request *http.Request) (string) {
-
-//  Save a copy of this request for editing.
-    requestDump, err := httputil.DumpRequest(request, true)
-
-    if err != nil {
-      fmt.Println(err)
-    }
-//    fmt.Println(string(requestDump))
-
-    toEdit = string(requestDump)
-//    fmt.Println(toEdit)
-    return toEdit
-
-//   fmt.Println("response: ")
-//   fmt.Println(response)
-}
 
 type Git struct {
   Hash, Projectname string
@@ -76,7 +55,7 @@ func main() {
     i++
     l.numberOfRequests = i
     l.date = time.Now().String()
-    toEdit = queryOutput(toEdit, response, request)
+    toEdit = requestToString(toEdit, request)
     l.request = toEdit
     u = editRequest(toEdit, u)
 
